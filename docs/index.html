@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Spotify NP Script (Local Edition) v1.5</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: "Courier New", monospace;
+      white-space: pre-wrap;
+      line-height: 1.4;
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 1rem;
+      background: #f9f9f9;
+      color: #222;
+    }
+    h2 { 
+      font-family: sans-serif;
+      margin-top: 1.5rem;
+      text-decoration: underline;
+    }
+    ul, ol { 
+      font-family: sans-serif;
+      margin-left: 1.5rem;
+    }
+    code {
+      display: block;
+      background: #fff;
+      border: 1px solid #ddd;
+      padding: 0.5rem;
+      margin: 0.5rem 0;
+      font-family: monospace;
+    }
+    a { color: #0366d6; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  
+============================================================
+Spotify NP Script (Local Edition) v1.5  
+Maker: blind_peer  
+============================================================
+
+<h2>DESCRIPTION</h2>
+Spotify NP Script (Local Edition) is a small, self-hosted tool that lets you post your current Spotify “Now Playing” into any chat client via a simple `/me` command. It uses a browser bookmarklet plus two lightweight local servers (an HTTP redirect page and a Flask proxy) to handle Spotify’s PKCE OAuth flow, token exchange, and silent refresh—now with built-in throttling to prevent duplicate posts under lag.
+
+<h2>FEATURES</h2>
+<ul>
+  <li>One-click “Now Playing” via a browser bookmarklet</li>
+  <li>Secure PKCE authorization (no client secret exposed)</li>
+  <li>Local Flask proxy for token and refresh exchanges (no public CORS proxy)</li>
+  <li>Automatic refresh-token support (no re-authorization every hour)</li>
+  <li>Persistent 5-second throttle to prevent flooding under lag</li>
+  <li>Customizable message format:<br>
+      <code>/me is now playing: Artist – Track [Album] (https://open.spotify.com/...)</code>
+  </li>
+</ul>
+
+<h2>CONTENTS</h2>
+After installation you will have:<br>
+  • index.html<br>
+  &nbsp;&nbsp;– Landing page & OAuth redirect callback (served on http://127.0.0.1:8000)<br>
+  • proxy.py<br>
+  &nbsp;&nbsp;– Flask app (runs on http://127.0.0.1:8888) for /api/token and /api/refresh<br>
+  • run-proxy-py.bat<br>
+  &nbsp;&nbsp;– Batch script to launch proxy.py inside a Python venv<br>
+  • run-all-servers.bat<br>
+  &nbsp;&nbsp;– Batch script to launch both the HTTP server (8000) and the proxy (8888)<br>
+  • bookmarklet.txt<br>
+  &nbsp;&nbsp;– The one-line JavaScript bookmarklet you paste into your browser<br>
+  • venv/<br>
+  &nbsp;&nbsp;– Python virtual environment with Flask, requests, flask-cors<br>
+
+<h2>PREREQUISITES</h2>
+  • Windows 10 or 11<br>
+  • Python 3.7 or later on your PATH<br>
+  • A registered Spotify app (Client ID only; no secret needed)<br>
+  • A chat client in the browser with a `cb().say(...)` API<br>
+
+<h2>INSTALLATION</h2>
+1. Prepare an empty folder, e.g.<br>
+   <code>D:\Apps\SpotifyNP\</code><br>
+2. Copy these two installer files into that folder:<br>
+   • SpotifyNPScript-Local.py<br>
+   • Install_SpotifyNPScript-Local.bat<br>
+3. Open Command Prompt and `cd` into your folder:<br>
+   <code>cd /d D:\Apps\SpotifyNP\</code><br>
+4. Run the installer:<br>
+   <code>Install_SpotifyNPScript-Local.bat</code><br>
+5. When prompted, enter your **Spotify Client ID** and press Enter.<br>
+6. The installer will:<br>
+   - Write out index.html, proxy.py, run-proxy-py.bat, run-all-servers.bat, bookmarklet.txt<br>
+   - Create a Python virtualenv (`venv\`) and install Flask + dependencies<br>
+   - Ask “Start both servers now? (Y/N)” — answer **Y** to launch them immediately<br>
+7. In your Spotify Developer Dashboard, add the redirect URI:<br>
+   <code>http://127.0.0.1:8000/index.html</code><br>
+
+<h2>USAGE</h2>
+1. Ensure both servers are running (HTTP on port 8000, proxy on port 8888).<br>
+   - If you skipped “Y” at install, run:<br>
+     <code>run-all-servers.bat</code><br>
+2. Install the bookmarklet:<br>
+   - Open bookmarklet.txt, copy its contents.<br>
+   - Create a new browser bookmark and paste the string into its URL field.<br>
+3. In any web page with `cb().say` available, click the bookmarklet.<br>
+   - On first use, authorize Spotify in the popup.<br>
+   - Afterwards, it will post:<br>
+     <code>/me is now playing: Artist – Track [Album] (https://open.spotify.com/...)</code><br>
+
+<h2>OPTIONAL: AUTO-START AT LOGIN</h2>
+To have both servers start automatically whenever you log into Windows:<br>
+1. Open Task Scheduler.<br>
+2. Create a new task triggered “At log on.”<br>
+3. Action: Start a program → `D:\Apps\SpotifyNP\run-all-servers.bat`<br>
+4. Check “Run only when user is logged on” and “Hidden.”<br>
+5. Save.<br>
+
+<h2>CHANGELOG</h2>
+<strong>v1.5 (2025-06-18)</strong><br>
+  • Added persistent 5-second throttle (via localStorage) to bookmarklet to prevent duplicate posts under lag<br>
+  • Updated version references from v1.4 to v1.5 across scripts, docs, and landing page<br>
+  • Restored detailed landing page (index.html) on GitHub Pages<br>
+  • Removed accidental TEST/ directory from repo<br>
+
+<h2>SUPPORT & CUSTOMIZATION</h2>
+• To change the chat message format, edit the `cb().say(...)` line in the bookmarklet.<br>
+• To add album art or auto-refresh at intervals, extend the bookmarklet or proxy code.<br>
+• For issues or questions, reach out to blind_peer:<br>
+    - blind_peer@protonmail.ch<br>
+    - blind_peer on Qnet, IRCnet, etc.<br>
+
+Enjoy seamless, flood-protected local “Now Playing” updates in your chat!
+</body>
+</html>
