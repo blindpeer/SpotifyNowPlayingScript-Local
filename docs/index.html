@@ -6,131 +6,159 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body {
-      font-family: "Courier New", monospace;
-      white-space: pre-wrap;
-      line-height: 1.4;
-      max-width: 800px;
-      margin: 2rem auto;
+      margin: 0;
       padding: 1rem;
-      background: #f9f9f9;
-      color: #222;
+      background: #121212;
+      color: #ccc;
+      font-family: system-ui, sans-serif;
+      line-height: 1.5;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
     }
-    h2 { 
-      font-family: sans-serif;
+    pre.header {
+      font-family: 'Courier New', monospace;
+      background: #1e1e1e;
+      padding: 0.75rem;
+      border-radius: 4px;
+      color: #1db954;
+      margin-bottom: 1rem;
+    }
+    h2 {
       margin-top: 1.5rem;
+      margin-bottom: 0.5rem;
+      color: #fff;
+      border-bottom: 1px solid #333;
+      padding-bottom: 0.25rem;
+      font-weight: normal;
+      font-family: system-ui, sans-serif;
+    }
+    ul, ol {
+      margin-top: 0;
+      margin-bottom: 1rem;
+      padding-left: 1.25rem;
+    }
+    li {
+      margin-bottom: 0.25rem;
+    }
+    code, pre code {
+      background: #1e1e1e;
+      padding: 0.25rem 0.5rem;
+      border-radius: 3px;
+      color: #ccc;
+      font-family: 'Courier New', monospace;
+    }
+    pre code {
+      display: block;
+      margin: 0.5rem 0;
+      white-space: pre-wrap;
+    }
+    a {
+      color: #1db954;
+      text-decoration: none;
+    }
+    a:hover {
       text-decoration: underline;
     }
-    ul, ol { 
-      font-family: sans-serif;
-      margin-left: 1.5rem;
+    footer {
+      margin-top: 2rem;
+      font-size: 0.9rem;
+      color: #666;
+      text-align: center;
     }
-    code {
-      display: block;
-      background: #fff;
-      border: 1px solid #ddd;
-      padding: 0.5rem;
-      margin: 0.5rem 0;
-      font-family: monospace;
-    }
-    a { color: #0366d6; text-decoration: none; }
-    a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
-  
-============================================================
-Spotify NP Script (Local Edition) v1.5  
-Maker: blind_peer  
-============================================================
+
+<pre class="header">============================================================
+Spotify NP Script (Local Edition) v1.5
+Maker: blind_peer
+============================================================</pre>
 
 <h2>DESCRIPTION</h2>
-Spotify NP Script (Local Edition) is a small, self-hosted tool that lets you post your current Spotify “Now Playing” into any chat client via a simple `/me` command. It uses a browser bookmarklet plus two lightweight local servers (an HTTP redirect page and a Flask proxy) to handle Spotify’s PKCE OAuth flow, token exchange, and silent refresh—now with built-in throttling to prevent duplicate posts under lag.
+Spotify NP Script (Local Edition) is a self-hosted tool that posts your current Spotify “Now Playing” into any chat client via a `/me` command.  
+It uses a bookmarklet plus two local servers (an HTTP redirect page and a Flask proxy) for PKCE OAuth, token exchange, and silent refresh—with built-in throttling to prevent duplicate posts under lag.
 
 <h2>FEATURES</h2>
 <ul>
-  <li>One-click “Now Playing” via a browser bookmarklet</li>
-  <li>Secure PKCE authorization (no client secret exposed)</li>
-  <li>Local Flask proxy for token and refresh exchanges (no public CORS proxy)</li>
-  <li>Automatic refresh-token support (no re-authorization every hour)</li>
-  <li>Persistent 5-second throttle to prevent flooding under lag</li>
-  <li>Customizable message format:<br>
-      <code>/me is now playing: Artist – Track [Album] (https://open.spotify.com/...)</code>
+  <li>One-click “Now Playing” via bookmarklet</li>
+  <li>Secure PKCE OAuth flow (no client secret exposed)</li>
+  <li>Local Flask proxy for token &amp; refresh exchanges</li>
+  <li>Automatic refresh-token handling (no hourly pop-ups)</li>
+  <li>Persistent 5-second throttle to prevent flooding</li>
+  <li>Customizable message format:  
+    <code>/me is now playing: Artist – Track [Album] (https://open.spotify.com/...)</code>
   </li>
 </ul>
 
 <h2>CONTENTS</h2>
-After installation you will have:<br>
-  • index.html<br>
-  &nbsp;&nbsp;– Landing page & OAuth redirect callback (served on http://127.0.0.1:8000)<br>
-  • proxy.py<br>
-  &nbsp;&nbsp;– Flask app (runs on http://127.0.0.1:8888) for /api/token and /api/refresh<br>
-  • run-proxy-py.bat<br>
-  &nbsp;&nbsp;– Batch script to launch proxy.py inside a Python venv<br>
-  • run-all-servers.bat<br>
-  &nbsp;&nbsp;– Batch script to launch both the HTTP server (8000) and the proxy (8888)<br>
-  • bookmarklet.txt<br>
-  &nbsp;&nbsp;– The one-line JavaScript bookmarklet you paste into your browser<br>
-  • venv/<br>
-  &nbsp;&nbsp;– Python virtual environment with Flask, requests, flask-cors<br>
+<ul>
+  <li><code>index.html</code> – Landing page & OAuth redirect callback (<code>http://127.0.0.1:8000</code>)</li>
+  <li><code>proxy.py</code> – Flask app (<code>http://127.0.0.1:8888</code>) for <code>/api/token</code> &amp; <code>/api/refresh</code></li>
+  <li><code>run-proxy-py.bat</code> – Launches <code>proxy.py</code> in a venv</li>
+  <li><code>run-all-servers.bat</code> – Starts both redirect server &amp; proxy</li>
+  <li><code>bookmarklet.txt</code> – One-line JavaScript bookmarklet</li>
+  <li><code>venv/</code> – Python virtual environment with Flask, requests, flask-cors</li>
+</ul>
 
 <h2>PREREQUISITES</h2>
-  • Windows 10 or 11<br>
-  • Python 3.7 or later on your PATH<br>
-  • A registered Spotify app (Client ID only; no secret needed)<br>
-  • A chat client in the browser with a `cb().say(...)` API<br>
+<ul>
+  <li>Windows 10 or 11</li>
+  <li>Python 3.7+ on your <code>PATH</code></li>
+  <li>Registered Spotify app (Client ID only)</li>
+  <li>Chat client in browser with <code>cb().say(...)</code> API</li>
+</ul>
 
 <h2>INSTALLATION</h2>
-1. Prepare an empty folder, e.g.<br>
-   <code>D:\Apps\SpotifyNP\</code><br>
-2. Copy these two installer files into that folder:<br>
-   • SpotifyNPScript-Local.py<br>
-   • Install_SpotifyNPScript-Local.bat<br>
-3. Open Command Prompt and `cd` into your folder:<br>
-   <code>cd /d D:\Apps\SpotifyNP\</code><br>
-4. Run the installer:<br>
-   <code>Install_SpotifyNPScript-Local.bat</code><br>
-5. When prompted, enter your **Spotify Client ID** and press Enter.<br>
-6. The installer will:<br>
-   - Write out index.html, proxy.py, run-proxy-py.bat, run-all-servers.bat, bookmarklet.txt<br>
-   - Create a Python virtualenv (`venv\`) and install Flask + dependencies<br>
-   - Ask “Start both servers now? (Y/N)” — answer **Y** to launch them immediately<br>
-7. In your Spotify Developer Dashboard, add the redirect URI:<br>
-   <code>http://127.0.0.1:8000/index.html</code><br>
+<ol>
+  <li>Clone this repo into an empty folder (e.g. <code>D:\Apps\SpotifyNP\</code>).</li>
+  <li>Ensure <code>Python 3.7+</code> is on your <code>PATH</code>.</li>
+  <li>Run:<br><code>Install_SpotifyNPScript-Local.bat</code></li>
+  <li>Enter your Spotify <strong>Client ID</strong>.</li>
+  <li>Answer <strong>Y</strong> to launch:<br>
+    • Redirect page (<code>8000</code>)<br>
+    • Flask proxy (<code>8888</code>)</li>
+  <li>In Spotify Dashboard, add Redirect URI:<br>
+    <code>http://127.0.0.1:8000/index.html</code></li>
+  <li>Copy the bookmarklet from <code>bookmarklet.txt</code> into a browser favorite.</li>
+</ol>
 
 <h2>USAGE</h2>
-1. Ensure both servers are running (HTTP on port 8000, proxy on port 8888).<br>
-   - If you skipped “Y” at install, run:<br>
-     <code>run-all-servers.bat</code><br>
-2. Install the bookmarklet:<br>
-   - Open bookmarklet.txt, copy its contents.<br>
-   - Create a new browser bookmark and paste the string into its URL field.<br>
-3. In any web page with `cb().say` available, click the bookmarklet.<br>
-   - On first use, authorize Spotify in the popup.<br>
-   - Afterwards, it will post:<br>
-     <code>/me is now playing: Artist – Track [Album] (https://open.spotify.com/...)</code><br>
+<ol>
+  <li>Ensure servers are running (or rerun <code>run-all-servers.bat</code>).</li>
+  <li>On any page with <code>cb().say</code>, click the bookmarklet.</li>
+  <li>Authorize on first use; it auto-closes.</li>
+  <li>Chat posts:<br>
+    <code>/me is now playing: Artist – Track [Album] (https://open.spotify.com/...)</code>
+  </li>
+  <li>Subsequent clicks refresh tokens and post automatically (max once per 5 s).</li>
+</ol>
 
 <h2>OPTIONAL: AUTO-START AT LOGIN</h2>
-To have both servers start automatically whenever you log into Windows:<br>
-1. Open Task Scheduler.<br>
-2. Create a new task triggered “At log on.”<br>
-3. Action: Start a program → `D:\Apps\SpotifyNP\run-all-servers.bat`<br>
-4. Check “Run only when user is logged on” and “Hidden.”<br>
-5. Save.<br>
+<ul>
+  <li>Open Task Scheduler → New Task (“At log on”).</li>
+  <li>Action → <code>D:\Apps\SpotifyNP\run-all-servers.bat</code>.</li>
+  <li>Check “Run only when user is logged on” & “Hidden”.</li>
+</ul>
 
 <h2>CHANGELOG</h2>
-<strong>v1.5 (2025-06-18)</strong><br>
-  • Added persistent 5-second throttle (via localStorage) to bookmarklet to prevent duplicate posts under lag<br>
-  • Updated version references from v1.4 to v1.5 across scripts, docs, and landing page<br>
-  • Restored detailed landing page (index.html) on GitHub Pages<br>
-  • Removed accidental TEST/ directory from repo<br>
+<strong>v1.5 (2025-06-18)</strong>
+<ul>
+  <li>Persistent 5 s throttle (<code>_sp_lastPost</code>) to prevent duplicate posts</li>
+  <li>Bumped references from v1.4 → v1.5</li>
+  <li>Restored detailed landing page on GitHub Pages</li>
+  <li>Removed accidental <code>TEST/</code> directory</li>
+</ul>
 
 <h2>SUPPORT & CUSTOMIZATION</h2>
-• To change the chat message format, edit the `cb().say(...)` line in the bookmarklet.<br>
-• To add album art or auto-refresh at intervals, extend the bookmarklet or proxy code.<br>
-• For issues or questions, reach out to blind_peer:<br>
-    - blind_peer@protonmail.ch<br>
-    - blind_peer on Qnet, IRCnet, etc.<br>
+<ul>
+  <li>Edit <code>cb().say(...)</code> for custom chat formats</li>
+  <li>Extend bookmarklet or proxy for album art, auto-refresh, etc.</li>
+  <li>Contact blind_peer:<br>
+    • blind_peer@protonmail.ch<br>
+    • blind_peer on Qnet, IRCnet, etc.</li>
+</ul>
 
-Enjoy seamless, flood-protected local “Now Playing” updates in your chat!
-</body>
-</html>
+<footer>
+  © 2025 blind_peer • MIT License
+</footer>
