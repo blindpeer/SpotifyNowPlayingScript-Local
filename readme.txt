@@ -1,11 +1,11 @@
 ============================================================
-Spotify NP Script (Local Edition) v1.4
+Spotify NP Script (Local Edition) v1.5
 Maker: blind_peer
 ============================================================
 
 DESCRIPTION
 -----------
-Spotify NP Script (Local Edition) is a small, self-hosted tool that lets you post your current Spotify “Now Playing” into any chat client via a simple `/me` command.  It uses a browser bookmarklet plus two lightweight local servers (an HTTP redirect page and a Flask proxy) to handle Spotify’s PKCE OAuth flow, token exchange, and silent refresh.
+Spotify NP Script (Local Edition) is a small, self-hosted tool that lets you post your current Spotify “Now Playing” into any chat client via a simple `/me` command. It uses a browser bookmarklet plus two lightweight local servers (an HTTP redirect page and a Flask proxy) to handle Spotify’s PKCE OAuth flow, token exchange, and silent refresh—now with built-in throttling to prevent duplicate posts under lag.
 
 FEATURES
 --------
@@ -13,14 +13,15 @@ FEATURES
 • Secure PKCE authorization (no client secret exposed)  
 • Local Flask proxy for token and refresh exchanges (no public CORS proxy)  
 • Automatic refresh-token support (no re-authorization every hour)  
+• Persistent 5-second throttle to prevent flooding under lag  
 • Customizable message format:  
-    /me is now playing: Artist – Track [Album] (https://open.spotify.com/…)  
+    /me is now playing: Artist – Track [Album] (https://open.spotify.com/…)
 
 CONTENTS
 --------
 After installation you will have:
   • index.html  
-      – OAuth redirect callback page (served on http://127.0.0.1:8000)  
+      – Landing page & OAuth redirect callback (served on http://127.0.0.1:8000)  
   • proxy.py  
       – Flask app (runs on http://127.0.0.1:8888) for /api/token and /api/refresh  
   • run-proxy-py.bat  
@@ -91,12 +92,20 @@ To have both servers start automatically whenever you log into Windows:
 
 Now your local servers will always be ready.
 
+CHANGELOG
+---------
+v1.5 (2025-06-18)
+  • Added persistent 5-second throttle (via localStorage) to bookmarklet to prevent duplicate posts under lag  
+  • Updated version references from v1.4 to v1.5 across scripts, docs, and landing page  
+  • Restored detailed landing page (index.html) on GitHub Pages  
+  • Removed accidental TEST/ directory from repo  
+
 SUPPORT & CUSTOMIZATION
 -----------------------
 • To change the chat message format, edit the `cb().say(...)` line in the bookmarklet.  
-• To add album art or auto-refresh every few minutes, you can extend the bookmarklet or proxy code.  
-• For issues or questions, reach out to blind_peer
-	- blind_peer@protonmail.ch
-	- blind_peer @ Qnet, IRCnet etc.
+• To add album art or auto-refresh at intervals, extend the bookmarklet or proxy code.  
+• For issues or questions, reach out to blind_peer  
+    - blind_peer@protonmail.ch  
+    - blind_peer on Qnet, IRCnet, etc.
 
-Enjoy seamless local “Now Playing” updates in your chat!
+Enjoy seamless, flood-protected local “Now Playing” updates in your chat!  
