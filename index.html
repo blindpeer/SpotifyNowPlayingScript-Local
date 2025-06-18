@@ -1,94 +1,51 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>Spotify NP Script (Local Edition) v1.4</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    body { font-family: sans-serif; line-height: 1.6; max-width: 800px; margin: auto; padding: 1rem; }
-    header, nav, section, footer { margin-bottom: 2rem; }
-    nav a { margin-right: 1rem; text-decoration: none; color: #0366d6; }
-    pre { background: #f6f8fa; padding: 1rem; overflow-x: auto; }
-    code { background: #f6f8fa; padding: 0.2rem 0.4rem; }
-    h1, h2 { color: #24292e; }
-  </style>
-</head>
+<html>
+<head><meta charset="utf-8"><title>Spotify Auth Redirect</title></head>
 <body>
-
-  <header>
-    <h1>Spotify NP Script (Local Edition) v1.4</h1>
-    <p><strong>Maker:</strong> blind_peer</p>
-    <p>A purely local “Now Playing” bookmarklet for chat clients—no external servers, secure PKCE OAuth, and automatic token refresh.</p>
-  </header>
-
-  <nav>
-    <a href="#features">Features</a>
-    <a href="#installation">Installation</a>
-    <a href="#usage">Usage</a>
-    <a href="#files">Files</a>
-  </nav>
-
-  <section id="features">
-    <h2>Features</h2>
-    <ul>
-      <li>One-click “Now Playing” via bookmarklet</li>
-      <li>Secure PKCE OAuth flow (no client secret in JS)</li>
-      <li>Local Flask proxy for token exchange &amp; refresh</li>
-      <li>Automatic refresh-token handling (no hourly pop-ups)</li>
-      <li>Customizable chat message format: <code>/me is now playing: Artist – Track [Album] (Spotify link)</code></li>
-    </ul>
-  </section>
-
-  <section id="installation">
-    <h2>Installation</h2>
-    <ol>
-      <li>Clone or download this repo to a folder on your PC.</li>
-      <li>Ensure <code>Python 3.7+</code> is on your <code>PATH</code>.</li>
-      <li>Run the installer script:
-        <pre><code>Install_SpotifyNPScript-Local.bat</code></pre>
-      </li>
-      <li>When prompted, enter your Spotify <em>Client ID</em>.</li>
-      <li>Confirm “Start both servers now? (Y/N)” to spin up:
-        <ul>
-          <li>HTTP redirect page on <code>http://127.0.0.1:8000</code></li>
-          <li>Flask proxy on <code>http://127.0.0.1:8888</code></li>
-        </ul>
-      </li>
-      <li>In your Spotify Developer Dashboard, add the redirect URI:
-        <pre><code>http://127.0.0.1:8000/index.html</code></pre>
-      </li>
-      <li>Copy the bookmarklet code from <a href="bookmarklet.txt">bookmarklet.txt</a> into a new browser bookmark.</li>
-    </ol>
-  </section>
-
-  <section id="usage">
-    <h2>Usage</h2>
-    <p>With both servers running and the bookmarklet installed:</p>
-    <ol>
-      <li>Open any page where your chat client’s <code>cb().say(...)</code> API is available.</li>
-      <li>Click the <strong>Spotify NP Script</strong> bookmarklet.</li>
-      <li>On first use, authorize the app in Spotify’s popup; it will auto-close.</li>
-      <li>You’ll see a chat message like:
-        <pre><code>/me is now playing: Radiohead - Karma Police [OK Computer] (https://open.spotify.com/track/...)</code></pre>
-      </li>
-      <li>Subsequent clicks will silently refresh tokens as needed.</li>
-    </ol>
-  </section>
-
-  <section id="files">
-    <h2>Core Files</h2>
-    <ul>
-      <li><a href="index.html">index.html</a> — OAuth redirect page (port 8000)</li>
-      <li><a href="proxy.py">proxy.py</a> — Flask proxy (ports 8888) for /api/token &amp; /api/refresh</li>
-      <li><a href="run-proxy-py.bat">run-proxy-py.bat</a> — launches <code>proxy.py</code> in a venv</li>
-      <li><a href="run-all-servers.bat">run-all-servers.bat</a> — starts both redirect server &amp; proxy minimized</li>
-      <li><a href="bookmarklet.txt">bookmarklet.txt</a> — your one-line bookmarklet code</li>
-    </ul>
-  </section>
-
-  <footer>
-    <p>© 2025 blind_peer. Licensed under the MIT License.</p>
-  </footer>
-
+<script>
+(async () => {
+  const params = new URLSearchParams(window.location.search);
+  const code   = params.get('code');
+  const state  = params.get('state');
+  if (!code || !state) {
+    document.body.textContent = '⚠️ Missing code or state in URL.';
+    return;
+  }
+  function fromBase64Url(str) {
+    str = str.replace(/-/g,'+').replace(/_/g,'/');
+    while (str.length % 4) str += '=';
+    return atob(str);
+  }
+  const codeVerifier   = fromBase64Url(state);
+  const TOKEN_ENDPOINT = 'http://127.0.0.1:8888/api/token';
+  try {
+    const resp = await fetch(TOKEN_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type':'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        grant_type:      'authorization_code',
+        code:            code,
+        redirect_uri:    location.origin + location.pathname,
+        client_id:       'edd9f875459749aebb6b75f88f47c662',
+        code_verifier:   codeVerifier
+      })
+    });
+    const data = await resp.json();
+    if (!resp.ok) throw new Error(`${data.error}: ${data.error_description}`);
+    if (window.opener) {
+      window.opener.postMessage({
+        access_token:  data.access_token,
+        refresh_token: data.refresh_token
+      }, '*');
+    }
+    document.body.textContent = '✅ Tokens saved! You can close this window.';
+    window.close();
+  } catch (err) {
+    document.body.innerHTML =
+      '⚠️ Error exchanging token:<br><pre style="color:red;">' + err + '</pre>';
+    console.error('Token exchange failed:', err);
+  }
+})();
+</script>
 </body>
 </html>

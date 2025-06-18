@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Spotify NP Script (Local Edition) v1.4
+Spotify NP Script (Local Edition) v1.5
 Maker: blind_peer
 
 Scaffold script that:
@@ -96,7 +96,7 @@ def main():
     # 3) proxy.py
     write_file("proxy.py", f"""
     #!/usr/bin/env python3
-    # proxy.py for Spotify NP Script (Local Edition) v1.4
+    # proxy.py for Spotify NP Script (Local Edition) v1.5
 
     from flask import Flask, request, jsonify
     from flask_cors import CORS
@@ -176,7 +176,7 @@ def main():
     else:
         print("You can start them later with run-all-servers.bat")
 
-    print("\nDone! Enjoy Spotify NP Script (Local Edition) v1.4")
+    print("\nDone! Enjoy Spotify NP Script (Local Edition) v1.5")
     input("Press Enter to exit…")
 
 if __name__ == "__main__":
