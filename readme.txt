@@ -109,3 +109,4 @@ SUPPORT & CUSTOMIZATION
     - blind_peer on Qnet, IRCnet, etc.
 
 Enjoy seamless, flood-protected local “Now Playing” updates in your chat!  
+
