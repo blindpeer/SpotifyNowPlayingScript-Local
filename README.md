@@ -101,15 +101,6 @@ To have both servers start automatically whenever you log into Windows:
 
 Now your local servers will always be ready.
 
-CHANGELOG
----------
-v1.6 (2025-06-19)
-  • Dark-mode landing page with system-UI font, tighter spacing, styled ASCII header
-  • Streamlined layout for headings, lists & code blocks
-  • Robust bookmarklet guard: combined _invoked lock + persistent 5 s throttle
-  • Version bump everywhere from v1.5 → v1.6
-  • Docs refresh: full styled docs/index.html restored; README synced
-
 SUPPORT & CUSTOMIZATION
 -----------------------
 • To change the chat message format, edit the `cb().say(...)` line in the bookmarklet.  
