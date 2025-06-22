@@ -2,167 +2,181 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Spotify NP Script (Local Edition) v1.6</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Spotify NP Script (Local Edition) v1.7</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <style>
-    body {
+    /* Dark theme */
+    html, body {
       margin: 0;
       padding: 1rem;
-      background: #000;
-      color: #ccc;
-      font-family: system-ui, sans-serif;
-      line-height: 1.6;
-      max-width: 800px;
-      margin-left: auto;
-      margin-right: auto;
+      background: #121212;
+      color: #e0e0e0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+      line-height: 1.5;
     }
     h1, h2 {
-      color: #fff;
       margin-top: 1.5rem;
       margin-bottom: 0.5rem;
-      font-weight: normal;
+      font-weight: 600;
+      color: #fff;
     }
     h1 {
-      font-size: 2rem;
       border-bottom: 1px solid #333;
-      padding-bottom: 0.5rem;
+      padding-bottom: 0.3rem;
+    }
+    p, li {
+      margin-bottom: 0.75rem;
+    }
+    code {
+      background: #1e1e1e;
+      padding: 0.2rem 0.4rem;
+      border-radius: 3px;
+      font-size: 0.95em;
+    }
+    pre {
+      background: #1e1e1e;
+      padding: 1rem;
+      border-radius: 4px;
+      overflow-x: auto;
+      margin: 1rem 0;
+    }
+    ul {
+      padding-left: 1.2rem;
     }
     a {
-      color: #1DB954;
+      color: #80cbc4;
       text-decoration: none;
     }
     a:hover {
       text-decoration: underline;
     }
-    ul, ol {
-      margin-top: 0.5rem;
-      margin-bottom: 1rem;
-      padding-left: 1.5rem;
-    }
-    li {
-      margin-bottom: 0.25rem;
-    }
-    pre, code {
-      background: #111;
-      color: #fff;
-      border-radius: 4px;
-    }
-    pre {
-      padding: 1rem;
-      overflow-x: auto;
-    }
-    code {
-      padding: 0.2rem 0.4rem;
+    .badge {
+      display: inline-block;
+      margin-right: 0.5rem;
     }
     footer {
       margin-top: 2rem;
-      text-align: center;
-      font-size: 0.9rem;
-      color: #666;
+      border-top: 1px solid #333;
+      padding-top: 1rem;
+      font-size: 0.9em;
+      color: #aaa;
     }
   </style>
 </head>
 <body>
+  <h1>Spotify NP Script (Local Edition) v1.7</h1>
+  <p><strong>Maker:</strong> blind_peer</p>
 
-  <h1>Spotify NP Script (Local Edition) v1.6</h1>
+  <h2>Description</h2>
+  <p>
+    Spotify Now Playing Script (Local Edition) is a small, self-hosted tool that lets you post your current Spotify “Now Playing” into any chat client via a simple <code>/me</code> command. It uses a browser bookmarklet plus two lightweight local servers (an HTTP redirect page and a Flask proxy) to handle Spotify’s PKCE OAuth flow, token exchange, and silent refresh—now with built-in throttling to prevent duplicate posts under lag.
+  </p>
+  <p><strong>What the script will do:</strong></p>
+  <ul>
+    <li>Prompts for your Spotify Client ID.</li>
+    <li>Generates the core files:
+      <ul>
+        <li><code>index.html</code></li>
+        <li><code>proxy.py</code></li>
+        <li><code>run-proxy-py.bat</code></li>
+        <li><code>run-all-servers.bat</code></li>
+        <li><code>bookmarklet.txt</code></li>
+      </ul>
+    </li>
+    <li>Creates a Python virtualenv (<code>venv</code>) and installs Flask + dependencies.</li>
+    <li>Offers to start the local servers immediately.</li>
+  </ul>
 
-  <section>
-    <h2>DESCRIPTION</h2>
-    <p>Spotify NP Script (Local Edition) is a small, self-hosted tool that lets you post your current Spotify “Now Playing” into any chat client via a simple <code>/me</code> command. It uses a browser bookmarklet plus two lightweight local servers (an HTTP redirect page and a Flask proxy) to handle Spotify’s PKCE OAuth flow, token exchange, and silent refresh—now with built-in throttling to prevent duplicate posts under lag.</p>
-  </section>
+  <h2>Features</h2>
+  <ul>
+    <li>One-click “Now Playing” <code>/me</code> command via a browser bookmarklet</li>
+    <li>Secure PKCE authorization (no client secret exposed)</li>
+    <li>Local Flask proxy for token and refresh exchanges (no public CORS proxy)</li>
+    <li>Automatic refresh-token support (no re-authorization every hour)</li>
+    <li>Persistent 5 second throttle to prevent flooding under lag</li>
+    <li>Customizable message format:
+      <pre>/me is now playing: Artist – Track [Album] (https://open.spotify.com/...)</pre>
+    </li>
+  </ul>
 
-  <section>
-    <h2>WHAT THE SCRIPT WILL DO</h2>
-    <ol>
-      <li>Prompt for your Spotify Client ID.</li>
-      <li>Generate the core files:
-        <ul>
-          <li><code>index.html</code></li>
-          <li><code>proxy.py</code></li>
-          <li><code>run-proxy-py.bat</code></li>
-          <li><code>run-all-servers.bat</code></li>
-        </ul>
-      </li>
-      <li>Create a Python virtualenv (<code>venv</code>) and install Flask + dependencies.</li>
-      <li>Write <code>bookmarklet.txt</code> containing the one-line bookmarklet.</li>
-      <li>Offer to start the local servers immediately.</li>
-    </ol>
-  </section>
+  <h2>Contents</h2>
+  <ul>
+    <li><strong>index.html</strong> – Landing page & OAuth redirect callback (http://127.0.0.1:8000)</li>
+    <li><strong>proxy.py</strong> – Flask app (http://127.0.0.1:8888) for <code>/api/token</code> and <code>/api/refresh</code></li>
+    <li><strong>run-proxy-py.bat</strong> – Batch script to launch <code>proxy.py</code> inside a Python venv</li>
+    <li><strong>run-all-servers.bat</strong> – Batch script to launch both the HTTP server (8000) and the proxy (8888)</li>
+    <li><strong>bookmarklet.txt</strong> – The one-line JavaScript bookmarklet for your browser</li>
+    <li><strong>venv/</strong> – Python virtual environment with Flask, requests, flask-cors</li>
+  </ul>
 
-  <section>
-    <h2>FEATURES</h2>
-    <ul>
-      <li>One-click “Now Playing” <code>/me</code> message via a browser bookmarklet</li>
-      <li>Secure PKCE authorization (no client secret exposed)</li>
-      <li>Local Flask proxy for token and refresh exchanges (no public CORS proxy)</li>
-      <li>Automatic refresh-token support (no re-authorization every hour)</li>
-      <li>Persistent 5-second throttle to prevent flooding under lag</li>
-      <li>Customizable message format:
-        <pre><code>/me is now playing: Artist – Track [Album] (https://open.spotify.com/...)</code></pre>
-      </li>
-    </ul>
-  </section>
+  <h2>Prerequisites</h2>
+  <ul>
+    <li>Windows 10 or 11</li>
+    <li>Python 3.7+ on your <code>PATH</code></li>
+    <li>A registered Spotify app (Client ID only) in the <a href="https://developer.spotify.com/dashboard/">Spotify Developer Dashboard</a>
+      <ul>
+        <li>Add redirect URI: <code>http://127.0.0.1:8000/index.html</code></li>
+      </ul>
+    </li>
+    <li>A chat client in the browser with a <code>cb().say(...)</code> API</li>
+  </ul>
 
-  <section>
-    <h2>CONTENTS</h2>
-    <ul>
-      <li><code>index.html</code> – Landing page & OAuth redirect callback (served on <a href="http://127.0.0.1:8000">http://127.0.0.1:8000</a>)</li>
-      <li><code>proxy.py</code> – Flask app (runs on <a href="http://127.0.0.1:8888">http://127.0.0.1:8888</a>) for <code>/api/token</code> and <code>/api/refresh</code></li>
-      <li><code>run-proxy-py.bat</code> – Batch script to launch <code>proxy.py</code> inside a Python venv</li>
-      <li><code>run-all-servers.bat</code> – Batch script to launch both the HTTP server (8000) and the proxy (8888)</li>
-      <li><code>bookmarklet.txt</code> – The one-line JavaScript bookmarklet you paste into your browser</li>
-      <li><code>venv/</code> – Python virtual environment with Flask, requests, flask-cors</li>
-    </ul>
-  </section>
+  <h2>Installation</h2>
+  <ol>
+    <li>Prepare an empty folder, e.g.<br><code>D:\Apps\SpotifyNP\</code></li>
+    <li>Copy these two installer files into that folder:
+      <ul>
+        <li><code>SpotifyNPScript-Local.py</code></li>
+        <li><code>Install_SpotifyNPScript-Local.bat</code></li>
+      </ul>
+    </li>
+    <li>(Optional) Open Command Prompt and <code>cd /d D:\Apps\SpotifyNP\</code></li>
+    <li>Run the installer:<br><code>Install_SpotifyNPScript-Local.bat</code></li>
+    <li>When prompted, enter your <strong>Spotify Client ID</strong> and press Enter.</li>
+  </ol>
 
-  <section>
-    <h2>PREREQUISITES</h2>
-    <ul>
-      <li>Windows 10 or 11</li>
-      <li>Python 3.7 or later on your <code>PATH</code></li>
-      <li>A registered Spotify app (Client ID only; no secret needed) in Spotify Developer Dashboard:
-        <ul>
-          <li>Create at <a href="https://developer.spotify.com/dashboard/create" target="_blank">Spotify Developer Dashboard</a></li>
-          <li>Add redirect URI: <code>http://127.0.0.1:8000/index.html</code></li>
-        </ul>
-      </li>
-      <li>A chat client in the browser with a <code>cb().say(...)</code> API</li>
-    </ul>
-  </section>
+  <h2>Usage</h2>
+  <ol>
+    <li>Ensure both servers are running (HTTP 8000, proxy 8888).<br>
+      If you skipped “Y” at install, run:<br>
+      <code>run-all-servers.bat</code>
+    </li>
+    <li>Install the bookmarklet:
+      <ul>
+        <li>Open <code>bookmarklet.txt</code> and copy its contents.</li>
+        <li>Create a new browser bookmark and paste the string into its URL field.</li>
+      </ul>
+    </li>
+    <li>On any page with <code>cb().say</code> available, click the bookmarklet:
+      <ul>
+        <li>First use: authorize Spotify in the popup → post once.</li>
+        <li>Subsequent clicks: immediately posts current track.</li>
+      </ul>
+    </li>
+  </ol>
 
-  <section>
-    <h2>INSTALLATION</h2>
-    <ol>
-      <li>Prepare an empty folder, e.g.<br><code>D:\Apps\SpotifyNP\</code></li>
-      <li>Copy these two installer files into that folder:<br>
-        <code>SpotifyNPScript-Local.py</code><br>
-        <code>Install_SpotifyNPScript-Local.bat</code>
-      </li>
-      <li>Run the installer:<br><code>Install_SpotifyNPScript-Local.bat</code></li>
-      <li>When prompted, enter your <strong>Spotify Client ID</strong> and press Enter.</li>
-      <li>The installer will generate all files, create a venv, install dependencies, and ask to start both servers.</li>
-    </ol>
-  </section>
+  <h2>Optional: Auto-Start at Login</h2>
+  <ol>
+    <li>Open Task Scheduler.</li>
+    <li>Create a new task triggered “At log on.”</li>
+    <li>Action: Start a program → <code>D:\Apps\SpotifyNP\run-all-servers.bat</code></li>
+    <li>Check “Run only when user is logged on” and “Hidden.”</li>
+    <li>Save.</li>
+  </ol>
 
-  <section>
-    <h2>USAGE</h2>
-    <ol>
-      <li>Ensure both servers are running (HTTP on port 8000, proxy on port 8888).<br>
-        If you skipped “Y” at install, run:<br><code>run-all-servers.bat</code>
-      </li>
-      <li>Install the bookmarklet:<br>
-        Open <code>bookmarklet.txt</code>, copy the URL, and paste into a new browser favorite.
-      </li>
-      <li>On any page with <code>cb().say</code> available, click the bookmarklet:<br>
-        - First use: authorize Spotify in the popup (it auto-closes).<br>
-        - Afterwards: it posts your Now Playing message automatically.
-      </li>
-    </ol>
-  </section>
+  <h2>Quickstart</h2>
+  <pre>git clone https://github.com/blindpeer/SpotifyNowPlayingScript-Local.git &&
+cd SpotifyNowPlayingScript-Local &&
+Install_SpotifyNPScript-Local.bat</pre>
+
+  <h2>Live Demo & Support</h2>
+  <ul>
+    <li><a href="https://blindpeer.github.io/SpotifyNowPlayingScript-Local/">Docs & Live Site</a></li>
+    <li><a href="https://github.com/blindpeer/SpotifyNowPlayingScript-Local/issues">Issue Tracker</a></li>
+  </ul>
 
   <footer>
-    &copy; 2025 blind_peer • MIT License
+    © 2025 blind_peer | <a href="../LICENSE">Proprietary Non-Commercial License</a>
   </footer>
-
 </body>
 </html>
