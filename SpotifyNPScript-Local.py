@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Spotify NP Script (Local Edition) v1.5
+Spotify NP Script (Local Edition) v1.6
 Maker: blind_peer
 
 Scaffold script that:
@@ -21,7 +21,8 @@ import subprocess
 from textwrap import dedent
 
 # Raw string so backslashes aren’t escapes; includes a literal '{cid}' placeholder
-BOOKMARKLET = r"""javascript:(async()=>{const CLIENT_ID='{cid}',REDIR='http://127.0.0.1:8000/index.html';function genR(n){const A='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',U=new Uint8Array(n);crypto.getRandomValues(U);return[...U].map(i=>A[i%A.length]).join('')}async function sha256(s){return crypto.subtle.digest('SHA-256',new TextEncoder().encode(s))}function b64u(b){return btoa(String.fromCharCode(...new Uint8Array(b))).replace(/=/g,'').replace(/\+/g,'-').replace(/\//g,'_')}async function postNow(){let t=localStorage.getItem('sp_access_token'),r=await fetch('https://api.spotify.com/v1/me/player/currently-playing',{headers:{Authorization:'Bearer '+t}});if(r.status===401){localStorage.removeItem('sp_access_token');return initAuth()}if(r.status===204)return;if(!r.ok)return;const d=await r.json(),i=d.item,a=i.artists.map(x=>x.name).join(', '),nm=i.name,al=i.album.name,url=i.external_urls.spotify;cb().say(`/me is now playing: ${a} - ${nm} [${al}] (${url})`)}async function initAuth(){const v=genR(64),c=b64u(await sha256(v)),s=b64u(new TextEncoder().encode(v)),p=new URLSearchParams({response_type:'code',client_id:CLIENT_ID,scope:'user-read-currently-playing',redirect_uri:REDIR,code_challenge_method:'S256',code_challenge:c,state:s});const w=window.open('https://accounts.spotify.com/authorize?'+p,'SpotifyAuth','width=450,height=730');if(!w)alert('Please allow pop-ups to authenticate with Spotify.')}window.addEventListener('message',e=>{if(e.data.access_token){localStorage.setItem('sp_access_token',e.data.access_token);localStorage.setItem('sp_refresh_token',e.data.refresh_token);postNow()}});localStorage.getItem('sp_access_token')?postNow():initAuth();})();"""
+BOOKMARKLET = r"""javascript:(()=>{const CID='YOUR_SPOTIFY_CLIENT_ID',REDIR='http://127.0.0.1:8000/index.html',TH=5000;let _posting=false;async function postNow(){const now=Date.now(),last=+localStorage.getItem('_sp_lastPost')||0;if(_posting||now-last<TH)return;_posting=true;localStorage.setItem('_sp_lastPost',now);let res=await fetch('https://api.spotify.com/v1/me/player/currently-playing',{headers:{Authorization:'Bearer '+localStorage.getItem('sp_access_token')}});if(res.status===401){const ref=localStorage.getItem('sp_refresh_token');if(ref){const r2=await fetch(`http://127.0.0.1:8888/api/refresh?refresh_token=${ref}`);if(r2.ok){const j=await r2.json();localStorage.setItem('sp_access_token',j.access_token);_posting=false;return postNow()}}_posting=false;return auth()}if(!res.ok||res.status===204){_posting=false;return}const d=await res.json(),item=d.item,artists=item.artists.map(a=>a.name).join(', ');cb().say(`/me is now playing: ${artists} - ${item.name} [${item.album.name}] (${item.external_urls.spotify})`);_posting=false;}function auth(){if(sessionStorage.getItem('np_auth'))return;sessionStorage.setItem('np_auth',1);window.addEventListener('message',e=>{if(e.data.access_token){localStorage.setItem('sp_access_token',e.data.access_token);localStorage.setItem('sp_refresh_token',e.data.refresh_token);sessionStorage.removeItem('np_auth');postNow()}},{once:true});(async()=>{const rand=n=>{const A='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',U=new Uint8Array(n);crypto.getRandomValues(U);return[...U].map(i=>A[i%A.length]).join('')},sha=s=>crypto.subtle.digest('SHA-256',new TextEncoder().encode(s)),b=u=>btoa(String.fromCharCode(...new Uint8Array(u))).replace(/=/g,'').replace(/\+/g,'-').replace(/\//g,'_'),v=rand(64),c=b(await sha(v)),st=b(new TextEncoder().encode(v)),P=new URLSearchParams({response_type:'code',client_id:CID,scope:'user-read-currently-playing',redirect_uri:REDIR,code_challenge_method:'S256',code_challenge:c,state:st});window.open('https://accounts.spotify.com/authorize?'+P,'SpotifyAuth','width=450,height=730')||alert('Please enable pop-ups');})();}localStorage.getItem('sp_access_token')?postNow():auth();})();"""
+
 
 def write_file(path, content):
     """Write the given content (dedented) to the specified file."""
@@ -96,7 +97,7 @@ def main():
     # 3) proxy.py
     write_file("proxy.py", f"""
     #!/usr/bin/env python3
-    # proxy.py for Spotify NP Script (Local Edition) v1.5
+    # proxy.py for Spotify NP Script (Local Edition) v1.6
 
     from flask import Flask, request, jsonify
     from flask_cors import CORS
@@ -155,7 +156,7 @@ def main():
     print("[✔] run-all-servers.bat")
 
     # 6) bookmarklet.txt
-    bm = BOOKMARKLET.replace("{cid}", cid)
+    bm = BOOKMARKLET.replace("YOUR_SPOTIFY_CLIENT_ID", cid)
     with open("bookmarklet.txt", "w", encoding="utf-8") as f:
         f.write(bm)
     print("[✔] bookmarklet.txt")
@@ -176,7 +177,7 @@ def main():
     else:
         print("You can start them later with run-all-servers.bat")
 
-    print("\nDone! Enjoy Spotify NP Script (Local Edition) v1.5")
+    print("\nDone! Enjoy Spotify NP Script (Local Edition) v1.6")
     input("Press Enter to exit…")
 
 if __name__ == "__main__":
