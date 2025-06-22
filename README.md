@@ -1,6 +1,6 @@
 # Spotify NP Script (Local Edition) v1.7
 
-[![License: PNC](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)  
+License: [PNC](LICENSE)
 [![GitHub Pages](https://img.shields.io/badge/Docs-GitHub%20Pages-blue.svg)](https://blindpeer.github.io/SpotifyNowPlayingScript-Local/)
 
 ## Description
