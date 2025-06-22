@@ -27,7 +27,7 @@ Spotify Now Playing Script (Local Edition) is a small, self-hosted tool that let
 - Persistent 5 second throttle to prevent flooding under lag  
 - Customizable message format:  
 ```
-/me is now playing: Artist – Track \[Album] ([https://open.spotify.com/…](https://open.spotify.com/…))
+/me is now playing: Artist – Track [Album] (https://open.spotify.com/…)
 
 ```
 
@@ -100,7 +100,6 @@ cd /d D:\Apps\SpotifyNP\
 
    * On first use, authorize Spotify in the popup.
    * Afterwards, each click posts:
-
      ```
      /me is now playing: Artist – Track [Album] (https://open.spotify.com/…)
      ```
@@ -132,6 +131,3 @@ Install_SpotifyNPScript-Local.bat
 
 **Creator:** blind\_peer
 **License:** PNC (see [LICENSE](LICENSE) for details)
-
-```
-```
