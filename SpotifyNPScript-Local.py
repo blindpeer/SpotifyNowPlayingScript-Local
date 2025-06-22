@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Spotify NP Script (Local Edition) v1.6
+Spotify NP Script (Local Edition) v1.7
 Maker: blind_peer
 
 Scaffold script that:
@@ -10,9 +10,9 @@ Scaffold script that:
      - proxy.py
      - run-proxy-py.bat
      - run-all-servers.bat
+     - bookmarklet.txt
   3. Creates a Python virtualenv (`venv`) and installs Flask + dependencies.
-  4. Writes `bookmarklet.txt` containing the one-line bookmarklet.
-  5. Offers to start the local servers immediately.
+  4. Offers to start the local servers immediately.
 """
 
 import os
@@ -20,25 +20,22 @@ import sys
 import subprocess
 from textwrap import dedent
 
-# Raw string so backslashes aren’t escapes; includes a literal '{cid}' placeholder
-BOOKMARKLET = r"""javascript:(()=>{const CID='YOUR_SPOTIFY_CLIENT_ID',REDIR='http://127.0.0.1:8000/index.html',TH=5000;let _posting=false;async function postNow(){const now=Date.now(),last=+localStorage.getItem('_sp_lastPost')||0;if(_posting||now-last<TH)return;_posting=true;localStorage.setItem('_sp_lastPost',now);let res=await fetch('https://api.spotify.com/v1/me/player/currently-playing',{headers:{Authorization:'Bearer '+localStorage.getItem('sp_access_token')}});if(res.status===401){const ref=localStorage.getItem('sp_refresh_token');if(ref){const r2=await fetch(`http://127.0.0.1:8888/api/refresh?refresh_token=${ref}`);if(r2.ok){const j=await r2.json();localStorage.setItem('sp_access_token',j.access_token);_posting=false;return postNow()}}_posting=false;return auth()}if(!res.ok||res.status===204){_posting=false;return}const d=await res.json(),item=d.item,artists=item.artists.map(a=>a.name).join(', ');cb().say(`/me is now playing: ${artists} - ${item.name} [${item.album.name}] (${item.external_urls.spotify})`);_posting=false;}function auth(){if(sessionStorage.getItem('np_auth'))return;sessionStorage.setItem('np_auth',1);window.addEventListener('message',e=>{if(e.data.access_token){localStorage.setItem('sp_access_token',e.data.access_token);localStorage.setItem('sp_refresh_token',e.data.refresh_token);sessionStorage.removeItem('np_auth');postNow()}},{once:true});(async()=>{const rand=n=>{const A='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',U=new Uint8Array(n);crypto.getRandomValues(U);return[...U].map(i=>A[i%A.length]).join('')},sha=s=>crypto.subtle.digest('SHA-256',new TextEncoder().encode(s)),b=u=>btoa(String.fromCharCode(...new Uint8Array(u))).replace(/=/g,'').replace(/\+/g,'-').replace(/\//g,'_'),v=rand(64),c=b(await sha(v)),st=b(new TextEncoder().encode(v)),P=new URLSearchParams({response_type:'code',client_id:CID,scope:'user-read-currently-playing',redirect_uri:REDIR,code_challenge_method:'S256',code_challenge:c,state:st});window.open('https://accounts.spotify.com/authorize?'+P,'SpotifyAuth','width=450,height=730')||alert('Please enable pop-ups');})();}localStorage.getItem('sp_access_token')?postNow():auth();})();"""
-
+# Bookmarklet template with a {cid} placeholder
+BOOKMARKLET = r"""javascript:(()=>{const CLIENT_ID='{cid}',REDIR='http://127.0.0.1:8000/index.html';function genR(n){const A='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',U=new Uint8Array(n);crypto.getRandomValues(U);return[...U].map(i=>A[i%A.length]).join('')}async function sha256(s){return crypto.subtle.digest('SHA-256',new TextEncoder().encode(s))}function b64u(b){return btoa(String.fromCharCode(...new Uint8Array(b))).replace(/=/g,'').replace(/\+/g,'-').replace(/\//g,'_')}let posting=false;async function postNow(){if(posting)return;posting=true;let t=localStorage.getItem('sp_access_token'),r=await fetch('https://api.spotify.com/v1/me/player/currently-playing',{headers:{Authorization:'Bearer '+t}});if(r.status===401){let ref=localStorage.getItem('sp_refresh_token');if(ref){let s=await fetch(`http://127.0.0.1:8888/api/refresh?refresh_token=${ref}`);if(s.ok){let j=await s.json();localStorage.setItem('sp_access_token',j.access_token);if(j.refresh_token) localStorage.setItem('sp_refresh_token',j.refresh_token);posting=false;return postNow()}}localStorage.removeItem('sp_access_token');posting=false;return initAuth()}if(!r.ok||r.status===204){posting=false;return}let d=await r.json(),i=d.item,a=i.artists.map(x=>x.name).join(', ');cb().say(`/me is now playing: ${a} - ${i.name} [${i.album.name}] (${i.external_urls.spotify})`);posting=false;}async function initAuth(){const v=genR(64),c=b64u(await sha256(v)),st=b64u(new TextEncoder().encode(v)),p=new URLSearchParams({response_type:'code',client_id:CLIENT_ID,scope:'user-read-currently-playing',redirect_uri:REDIR,code_challenge_method:'S256',code_challenge:c,state:st});window.open('https://accounts.spotify.com/authorize?'+p,'SpotifyAuth','width=450,height=730')||alert('Enable pop-ups in your browser')}window.addEventListener('message',e=>{if(e.data.access_token){localStorage.setItem('sp_access_token',e.data.access_token);localStorage.setItem('sp_refresh_token',e.data.refresh_token);postNow()}});localStorage.getItem('sp_access_token')?postNow():initAuth();})();"""
 
 def write_file(path, content):
-    """Write the given content (dedented) to the specified file."""
     with open(path, 'w', encoding='utf-8') as f:
         f.write(dedent(content).lstrip())
 
 def main():
-    # 1) Prompt for Spotify Client ID
     cid = input("Enter your Spotify Client ID: ").strip()
     if not cid:
-        print("Error: Client ID is required.")
+        print("Client ID is required.")
         sys.exit(1)
 
-    print("\n[✔] Generating files in:", os.getcwd(), "\n")
+    print(f"\nGenerating files in: {os.getcwd()}\n")
 
-    # 2) index.html
+    # index.html (unchanged)
     write_file("index.html", f"""
     <!DOCTYPE html>
     <html>
@@ -58,18 +55,18 @@ def main():
         while (str.length % 4) str += '=';
         return atob(str);
       }}
-      const codeVerifier   = fromBase64Url(state);
+      const verifier   = fromBase64Url(state);
       const TOKEN_ENDPOINT = 'http://127.0.0.1:8888/api/token';
       try {{
         const resp = await fetch(TOKEN_ENDPOINT, {{
           method: 'POST',
           headers: {{ 'Content-Type':'application/x-www-form-urlencoded' }},
           body: new URLSearchParams({{
-            grant_type:      'authorization_code',
-            code:            code,
-            redirect_uri:    location.origin + location.pathname,
-            client_id:       '{cid}',
-            code_verifier:   codeVerifier
+            grant_type:    'authorization_code',
+            code:          code,
+            redirect_uri:  location.origin + location.pathname,
+            client_id:     '{cid}',
+            code_verifier: verifier
           }})
         }});
         const data = await resp.json();
@@ -92,12 +89,12 @@ def main():
     </body>
     </html>
     """)
-    print("[✔] index.html")
+    print("✔ index.html")
 
-    # 3) proxy.py
+    # proxy.py (with both token & refresh endpoints)
     write_file("proxy.py", f"""
     #!/usr/bin/env python3
-    # proxy.py for Spotify NP Script (Local Edition) v1.6
+    # proxy.py for Spotify NP Script (Local Edition) v1.7
 
     from flask import Flask, request, jsonify
     from flask_cors import CORS
@@ -105,33 +102,41 @@ def main():
 
     CLIENT_ID = '{cid}'
     app = Flask(__name__)
-    CORS(app, origins='http://127.0.0.1:8000')
+    CORS(app, origins=['http://127.0.0.1:8000'])
     SPOTIFY_TOKEN_URL = 'https://accounts.spotify.com/api/token'
 
     @app.route('/api/token', methods=['POST'])
     def exchange_code():
         payload = request.form.to_dict()
-        r = requests.post(SPOTIFY_TOKEN_URL, data=payload,
-                          headers={{'Content-Type':'application/x-www-form-urlencoded'}})
-        return jsonify(r.json()), r.status_code
+        resp = requests.post(
+            SPOTIFY_TOKEN_URL,
+            data=payload,
+            headers={{'Content-Type':'application/x-www-form-urlencoded'}}
+        )
+        return jsonify(resp.json()), resp.status_code
 
-    @app.route('/api/refresh', methods=['POST'])
+    @app.route('/api/refresh', methods=['GET', 'POST'])
     def refresh_token():
+        # support GET and POST
+        rt = request.args.get('refresh_token') if request.method=='GET' else request.form.get('refresh_token')
         payload = {{
-            'grant_type': 'refresh_token',
-            'refresh_token': request.form.get('refresh_token'),
-            'client_id': CLIENT_ID
+            'grant_type':    'refresh_token',
+            'refresh_token': rt,
+            'client_id':     CLIENT_ID
         }}
-        r = requests.post(SPOTIFY_TOKEN_URL, data=payload,
-                          headers={{'Content-Type':'application/x-www-form-urlencoded'}})
-        return jsonify(r.json()), r.status_code
+        resp = requests.post(
+            SPOTIFY_TOKEN_URL,
+            data=payload,
+            headers={{'Content-Type':'application/x-www-form-urlencoded'}}
+        )
+        return jsonify(resp.json()), resp.status_code
 
     if __name__ == '__main__':
         app.run(host='127.0.0.1', port=8888)
     """)
-    print("[✔] proxy.py")
+    print("✔ proxy.py")
 
-    # 4) run-proxy-py.bat
+    # run-proxy-py.bat
     write_file("run-proxy-py.bat", """
     @echo off
     cd /d "%~dp0"
@@ -143,9 +148,9 @@ def main():
     python proxy.py
     pause
     """)
-    print("[✔] run-proxy-py.bat")
+    print("✔ run-proxy-py.bat")
 
-    # 5) run-all-servers.bat
+    # run-all-servers.bat
     write_file("run-all-servers.bat", """
     @echo off
     cd /d "%~dp0"
@@ -153,15 +158,15 @@ def main():
     start "SpotifyProxy"  /min "%~dp0run-proxy-py.bat"
     exit
     """)
-    print("[✔] run-all-servers.bat")
+    print("✔ run-all-servers.bat")
 
-    # 6) bookmarklet.txt
-    bm = BOOKMARKLET.replace("YOUR_SPOTIFY_CLIENT_ID", cid)
+    # bookmarklet.txt
+    bm = BOOKMARKLET.replace("{cid}", cid)
     with open("bookmarklet.txt", "w", encoding="utf-8") as f:
         f.write(bm)
-    print("[✔] bookmarklet.txt")
+    print("✔ bookmarklet.txt")
 
-    # 7) Set up venv & install dependencies
+    # venv & deps
     if not os.path.isdir("venv"):
         print("\n[+] Creating Python virtualenv…")
         subprocess.check_call([sys.executable, "-m", "venv", "venv"])
@@ -169,7 +174,7 @@ def main():
     activate = os.path.join("venv", "Scripts", "activate.bat")
     subprocess.call(f'call "{activate}" && pip install flask requests flask-cors >nul', shell=True)
 
-    # 8) Prompt to start servers
+    # launch servers
     ans = input("\nStart both servers now? (Y/N): ").strip().lower()
     if ans == 'y':
         print("Launching servers…")
@@ -177,9 +182,8 @@ def main():
     else:
         print("You can start them later with run-all-servers.bat")
 
-    print("\nDone! Enjoy Spotify NP Script (Local Edition) v1.6")
+    print("\nDone! Enjoy Spotify NP Script (Local Edition) v1.7")
     input("Press Enter to exit…")
 
 if __name__ == "__main__":
     main()
-
