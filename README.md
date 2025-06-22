@@ -35,7 +35,10 @@ PREREQUISITES
 -------------
   • Windows 10 or 11  
   • Python 3.7 or later on your PATH  
-  • A registered Spotify app (Client ID only; no secret needed)  
+  • A registered Spotify app (Client ID only; no secret needed) in Spotify Developer Dashboard
+      - Create app: https://developer.spotify.com/dashboard/create
+        - Add name and desciption for the app.
+        - Add the redirect URI: http://127.0.0.1:8000/index.html
   • A chat client in the browser with a `cb().say(...)` API  
 
 INSTALLATION
@@ -47,7 +50,7 @@ INSTALLATION
      • SpotifyNPScript-Local.py  
      • Install_SpotifyNPScript-Local.bat  
 
-3. Open Command Prompt and `cd` into your folder:  
+(Optional 3.) Open Command Prompt and `cd` into your folder:  
      cd /d D:\Apps\SpotifyNP\  
 
 4. Run the installer:  
@@ -59,9 +62,6 @@ INSTALLATION
    - Write out index.html, proxy.py, run-proxy-py.bat, run-all-servers.bat, bookmarklet.txt  
    - Create a Python virtualenv (`venv\`) and install Flask + dependencies  
    - Ask “Start both servers now? (Y/N)” — answer **Y** to launch them immediately  
-
-7. In your Spotify Developer Dashboard, add the redirect URI:  
-     http://127.0.0.1:8000/index.html  
 
 USAGE
 -----
@@ -103,7 +103,6 @@ SUPPORT & CUSTOMIZATION
 -----------------------
 • To change the chat message format, edit the `cb().say(...)` line in the bookmarklet.  
 • To add album art or auto-refresh at intervals, extend the bookmarklet or proxy code.  
-• For issues or questions, reach out to blind_peer  
-    - blind_peer@protonmail.ch
+• For issues or questions, reach out to blind_peer @ GitHub.
 
 Enjoy seamless, flood-protected local “Now Playing” updates in your chat!
