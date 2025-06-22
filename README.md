@@ -28,7 +28,6 @@ Spotify Now Playing Script (Local Edition) is a small, self-hosted tool that let
 - Customizable message format:  
 ```
 /me is now playing: Artist – Track [Album] (https://open.spotify.com/…)
-
 ```
 
 ## Contents
