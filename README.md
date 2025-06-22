@@ -5,9 +5,20 @@ DESCRIPTION
 -----------
 Spotify NP Script (Local Edition) is a small, self-hosted tool that lets you post your current Spotify “Now Playing” into any chat client via a simple `/me` command. It uses a browser bookmarklet plus two lightweight local servers (an HTTP redirect page and a Flask proxy) to handle Spotify’s PKCE OAuth flow, token exchange, and silent refresh—now with built-in throttling to prevent duplicate posts under lag.
 
+**What the script will do:**
+  1. Prompts for your Spotify Client ID.
+  2. Generates the core files:
+     - index.html
+     - proxy.py
+     - run-proxy-py.bat
+     - run-all-servers.bat
+  3. Creates a Python virtualenv (`venv`) and installs Flask + dependencies.
+  4. Writes `bookmarklet.txt` containing the one-line bookmarklet.
+  5. Offers to start the local servers immediately.
+
 FEATURES
 --------
-• One-click “Now Playing” via a browser bookmarklet  
+• One-click “Now Playing” /me -message via a browser bookmarklet  
 • Secure PKCE authorization (no client secret exposed)  
 • Local Flask proxy for token and refresh exchanges (no public CORS proxy)  
 • Automatic refresh-token support (no re-authorization every hour)  
