@@ -3,61 +3,66 @@
 <head>
   <meta charset="utf-8">
   <title>Spotify Auth Callback</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
 </head>
 <body>
-<script>
-(async () => {
-  const params = new URLSearchParams(location.search);
-  const code  = params.get('code');
-  const state = params.get('state');
-  if (!code || !state) {
-    document.body.textContent = '⚠️ Missing code or state in URL.';
-    return;
-  }
+  <script>
+  (async () => {
+    const params = new URLSearchParams(window.location.search);
+    const code  = params.get('code');
+    const state = params.get('state');
+    if (!code || !state) {
+      document.body.textContent = '⚠️ Missing code or state in URL.';
+      return;
+    }
 
-  function fromBase64Url(str) {
-    str = str.replace(/-/g,'+').replace(/_/g,'/');
-    while (str.length % 4) str += '=';
-    return atob(str);
-  }
-  const codeVerifier = fromBase64Url(state);
+    // Decode our PKCE verifier from the state
+    function fromBase64Url(str) {
+      str = str.replace(/-/g, '+').replace(/_/g, '/');
+      while (str.length % 4) str += '=';
+      return atob(str);
+    }
+    const codeVerifier = fromBase64Url(state);
 
-  // ** Use a public CORS proxy instead of localhost **
-  const TOKEN_ENDPOINT =
-    'https://thingproxy.freeboard.io/fetch/https://accounts.spotify.com/api/token';
+    // Use a public CORS proxy to reach Spotify's token endpoint
+    const TOKEN_ENDPOINT =
+      'https://thingproxy.freeboard.io/fetch/https://accounts.spotify.com/api/token';
 
-  try {
-    const resp = await fetch(TOKEN_ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type':'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        grant_type:    'authorization_code',
-        code:          code,
-        redirect_uri:  location.origin + location.pathname,
-        client_id:     'e8925619e60644ffb33e11750d138463',
-        code_verifier: codeVerifier
-      })
-    });
+    try {
+      const resp = await fetch(TOKEN_ENDPOINT, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: new URLSearchParams({
+          grant_type:    'authorization_code',
+          code:          code,
+          redirect_uri:  location.origin + location.pathname,
+          client_id:     'e8925619e60644ffb33e11750d138463',
+          code_verifier: codeVerifier
+        })
+      });
 
-    const data = await resp.json();
-    if (!resp.ok) throw new Error(`${data.error}: ${data.error_description}`);
+      const data = await resp.json();
+      if (!resp.ok) throw new Error(`${data.error}: ${data.error_description}`);
 
-    // send tokens back to the opener (your bookmarklet)
-    window.opener.postMessage({
-      access_token:  data.access_token,
-      refresh_token: data.refresh_token
-    }, '*');
+      // Send tokens back to the opener (your bookmarklet)
+      if (window.opener) {
+        window.opener.postMessage({
+          access_token:  data.access_token,
+          refresh_token: data.refresh_token
+        }, '*');
+      }
 
-    document.body.textContent = '✅ Tokens saved! You can close this window.';
-    window.close();
+      document.body.textContent = '✅ Tokens saved! You can close this window.';
+      window.close();
 
-  } catch (err) {
-    document.body.innerHTML = 
-      '⚠️ Error exchanging token:<br><pre style="color:red;">' 
-      + err + '</pre>';
-    console.error(err);
-  }
-})();
-</script>
+    } catch (err) {
+      document.body.innerHTML =
+        '⚠️ Error exchanging token:<br><pre style="color:red;">' + err + '</pre>';
+      console.error('Token exchange failed:', err);
+    }
+  })();
+  </script>
 </body>
 </html>
