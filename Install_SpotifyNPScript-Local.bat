@@ -1,5 +1,5 @@
 @echo off
-REM Spotify NP Script (Local Edition) v1.4 Installer
+REM Spotify NP Script (Local Edition) v1.7 Installer
 REM Maker: blind_peer
 
 REM Change to the script’s directory
