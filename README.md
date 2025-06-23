@@ -1,132 +1,120 @@
-# Spotify NP Script (Local Edition) v1.7
+# Spotify NP Script (Local Edition)
 
-License: [PNC](LICENSE)
-[![GitHub Pages](https://img.shields.io/badge/Docs-GitHub%20Pages-blue.svg)](https://blindpeer.github.io/SpotifyNowPlayingScript-Local/)
+## DESCRIPTION
 
-## Description
+**Spotify NP Script (Local Edition)** is a small, self-hosted tool that lets you post your current Spotify “Now Playing” into any chat client via a simple `/me` command.  
+It uses a browser bookmarklet plus two lightweight local servers (an HTTP redirect page and a Flask proxy) to handle Spotify’s PKCE OAuth flow, token exchange, refresh, and throttling to prevent duplicate posts.
 
-Spotify Now Playing Script (Local Edition) is a small, self-hosted tool that lets you post your current Spotify “Now Playing” into any IRC or any other chat client via a simple `/me` command. It uses a browser bookmarklet plus two lightweight local servers (an HTTP redirect page and a Flask proxy) to handle Spotify’s PKCE OAuth flow, token exchange, and silent refresh—now with built-in throttling to prevent duplicate posts under lag.
+## HOW IT WORKS
 
-**What the script will do:**
-1. Prompts for your Spotify Client ID.  
-2. Generates the core files:
-   - `index.html`  
-   - `proxy.py`  
-   - `run-proxy-py.bat`  
-   - `run-all-servers.bat`  
-   - `bookmarklet.txt`  
-3. Creates a Python virtualenv (`venv`) and installs Flask + dependencies.  
-4. Offers to start the local servers immediately.
+1. **Installer prompts for your Spotify Client ID.**
+   - **Press Enter to use the built-in default public Client ID** (recommended for most users).
+2. **Generates all core files:**
+   - `index.html`, `proxy.py`, `run-proxy-py.bat`, `run-all-servers.bat`, `bookmarklet.txt`
+3. **Sets up a local Python virtual environment and installs Flask + dependencies.**
+4. **Writes `bookmarklet.txt` containing the one-line bookmarklet.**
+5. **Optionally starts the local servers immediately.**
 
-## Features
+---
 
-- One-click “Now Playing” `/me` command via a browser bookmarklet  
-- Secure PKCE authorization (no client secret exposed)  
-- Local Flask proxy for token and refresh exchanges (no public CORS proxy)  
-- Automatic refresh-token support (no re-authorization every hour)  
-- Persistent 5 second throttle to prevent flooding under lag  
+## FEATURES
+
+- One-click “Now Playing” `/me` message via browser bookmarklet  
+- Secure PKCE authorization (no client secret needed/exposed)  
+- Local Flask proxy for token and refresh exchanges (no public CORS proxy needed)  
+- Automatic refresh-token support (no frequent re-authorization)  
+- Persistent 5-second throttle to prevent flooding under lag  
 - Customizable message format:  
-```
-/me is now playing: Artist – Track [Album] (https://open.spotify.com/…)
-```
+  `/me is now playing: Artist – Track [Album] (https://open.spotify.com/…)`
 
-## Contents
+---
+
+## CONTENTS
 
 After installation you will have:
-- **index.html**  
-– Landing page & OAuth redirect callback (served on http://127.0.0.1:8000)  
-- **proxy.py**  
-– Flask app (runs on http://127.0.0.1:8888) for `/api/token` and `/api/refresh`  
-- **run-proxy-py.bat**  
-– Batch script to launch `proxy.py` inside a Python venv  
-- **run-all-servers.bat**  
-– Batch script to launch both the HTTP server (8000) and the proxy (8888)  
-- **bookmarklet.txt**  
-– The one-line JavaScript bookmarklet you paste into your browser  
-- **venv/**  
-– Python virtual environment with Flask, requests, flask-cors  
+- **index.html** – OAuth redirect callback page (http://127.0.0.1:8000)  
+- **proxy.py** – Flask app (http://127.0.0.1:8888) for `/api/token` and `/api/refresh`  
+- **run-proxy-py.bat** – Batch script to launch `proxy.py` inside a Python venv  
+- **run-all-servers.bat** – Batch script to launch both servers  
+- **bookmarklet.txt** – The one-line JavaScript bookmarklet  
+- **venv/** – Python virtual environment with Flask, requests, flask-cors
 
-## Prerequisites
+---
+
+## PREREQUISITES
 
 - Windows 10 or 11  
 - Python 3.7 or later on your PATH  
-- A registered Spotify app (Client ID only; no secret needed) in the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard/)  
-- Add redirect URI: `http://127.0.0.1:8000/index.html`  
-- A chat client in the browser with a `cb().say(...)` API  
+- **A Spotify app (Client ID only; no secret needed)**  
+  - *If you don’t have one, just press Enter during setup to use the public default!*
+  - Otherwise, create one here: https://developer.spotify.com/dashboard/create  
+    - Add name and description for the app  
+    - Add redirect URI: `http://127.0.0.1:8000/index.html`
+- A chat client in the browser with a `cb().say(...)` API
 
-## Installation
+---
 
-1. Prepare an empty folder, e.g.  
-```
+## INSTALLATION
 
-D:\Apps\SpotifyNP\\
+1. **Prepare an empty folder**, e.g.  
+   `D:\Apps\SpotifyNP\`
 
-````
-2. Copy these two installer files into that folder:  
-- `SpotifyNPScript-Local.py`  
-- `Install_SpotifyNPScript-Local.bat`  
-3. (Optional) Open Command Prompt and `cd` into your folder:  
-```bat
-cd /d D:\Apps\SpotifyNP\
-````
+2. **Copy these two installer files into that folder:**
+   - `SpotifyNPScript-Local.py`
+   - `Install_SpotifyNPScript-Local.bat`
 
-4. Run the installer:
+3. *(Optional)* Open Command Prompt and `cd` into your folder:  
+   `cd /d D:\Apps\SpotifyNP\`
 
-   ```bat
-   Install_SpotifyNPScript-Local.bat
-   ```
-5. When prompted, enter your **Spotify Client ID** and press Enter.
-6. The installer will:
+4. **Run the installer:**  
+   `Install_SpotifyNPScript-Local.bat`
 
-   * Write out `index.html`, `proxy.py`, `run-proxy-py.bat`, `run-all-servers.bat`, `bookmarklet.txt`
-   * Create a Python virtualenv (`venv\`) and install Flask + dependencies
-   * Ask “Start both servers now? (Y/N)” — answer **Y** to launch them immediately
+5. **When prompted:**  
+   - **To use your own Client ID:** Paste it and press Enter  
+   - **To use the default public Client ID:** Just press Enter
 
-## Usage
+6. The installer will:  
+   - Write out all core files (`index.html`, `proxy.py`, batch scripts, `bookmarklet.txt`)  
+   - Create a Python virtualenv (`venv\`) and install dependencies  
+   - Ask “Start both servers now? (Y/N)” — answer **Y** to launch them immediately
 
-1. Ensure both servers are running (HTTP on port 8000, proxy on port 8888).
+---
 
-   * If you skipped “Y” at install, run:
+## USAGE
 
-     ```bat
-     run-all-servers.bat
-     ```
-2. Install the bookmarklet:
+1. **Ensure both servers are running** (HTTP on port 8000, proxy on port 8888).  
+   - If you skipped “Y” at install, run:  
+     `run-all-servers.bat`
 
-   * Open `bookmarklet.txt`, copy its contents.
-   * Create a new browser bookmark and paste the string into its URL field.
-3. In any web page with `cb().say` available, click the bookmarklet.
+2. **Install the bookmarklet:**  
+   - Open `bookmarklet.txt`, copy its contents.  
+   - Create a new browser bookmark and paste the string into its URL field.
 
-   * On first use, authorize Spotify in the popup.
-   * Afterwards, each click posts:
-     ```
-     /me is now playing: Artist – Track [Album] (https://open.spotify.com/…)
-     ```
+3. **In any web page with `cb().say` available, click the bookmarklet.**
+   - On first use, authorize Spotify in the popup.
+   - Afterwards, it will post:  
+     `/me is now playing: Artist – Track [Album] (https://open.spotify.com/…)`
 
-## Optional: Auto-Start at Login
+---
+
+## OPTIONAL: AUTO-START AT LOGIN
 
 To have both servers start automatically whenever you log into Windows:
 
-1. Open Task Scheduler.
+1. Open **Task Scheduler**
 2. Create a new task triggered “At log on.”
-3. Action: Start a program → `D:\Apps\SpotifyNP\run-all-servers.bat`
+3. **Action:** Start a program → `D:\Apps\SpotifyNP\run-all-servers.bat`
 4. Check “Run only when user is logged on” and “Hidden.”
 5. Save.
 
-## Quickstart (one-line)
+---
 
-```bash
-git clone https://github.com/blindpeer/SpotifyNowPlayingScript-Local.git &&
-cd SpotifyNowPlayingScript-Local &&
-Install_SpotifyNPScript-Local.bat
-```
+## SUPPORT & CUSTOMIZATION
 
-## Live Demo & Support
+- To change the chat message format, edit the `cb().say(...)` line in the bookmarklet.
+- To add album art or auto-refresh at intervals, extend the bookmarklet or proxy code.
+- For issues or questions, reach out to **blind_peer** @ GitHub.
 
-* **Docs & live site**: [https://blindpeer.github.io/SpotifyNowPlayingScript-Local/](https://blindpeer.github.io/SpotifyNowPlayingScript-Local/)
-* **Issues**: [https://github.com/blindpeer/SpotifyNowPlayingScript-Local/issues](https://github.com/blindpeer/SpotifyNowPlayingScript-Local/issues)
+---
 
-## Author & License
-
-**Creator:** blind\_peer
-**License:** PNC (see [LICENSE](LICENSE) for details)
+**Enjoy seamless, flood-protected local “Now Playing” updates in your chat!**
